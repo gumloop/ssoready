@@ -769,21 +769,23 @@ func (s *Service) scimPatchGroup(w http.ResponseWriter, r *http.Request) error {
 	// jumpcloud adds members to groups via an `add` on members; entra uses an `Add`
 	if len(patch.Operations) == 1 && (patch.Operations[0].Op == "add" || patch.Operations[0].Op == "Add") && patch.Operations[0].Path == "members" {
 		value := patch.Operations[0].Value.([]any)
-		scimUserID := value[0].(map[string]any)["value"].(string)
+		for _, member := range value {
+			scimUserID := member.(map[string]any)["value"].(string)
 
-		if err := s.Store.AuthAddSCIMGroupMember(ctx, &store.AuthAddSCIMGroupMemberRequest{
-			SCIMGroup: &ssoreadyv1.SCIMGroup{
-				Id:              scimGroupID,
-				ScimDirectoryId: scimDirectoryID,
-			},
-			SCIMUserID: scimUserID,
-		}); err != nil {
-			if errors.Is(err, store.ErrBadSCIMUserID) {
-				http.Error(w, "bad scim user id", http.StatusBadRequest)
-				return nil
+			if err := s.Store.AuthAddSCIMGroupMember(ctx, &store.AuthAddSCIMGroupMemberRequest{
+				SCIMGroup: &ssoreadyv1.SCIMGroup{
+					Id:              scimGroupID,
+					ScimDirectoryId: scimDirectoryID,
+				},
+				SCIMUserID: scimUserID,
+			}); err != nil {
+				if errors.Is(err, store.ErrBadSCIMUserID) {
+					http.Error(w, "bad scim user id", http.StatusBadRequest)
+					return nil
+				}
+
+				panic(fmt.Errorf("store: %w", err))
 			}
-
-			panic(fmt.Errorf("store: %w", err))
 		}
 
 		w.WriteHeader(http.StatusNoContent)
@@ -793,16 +795,18 @@ func (s *Service) scimPatchGroup(w http.ResponseWriter, r *http.Request) error {
 	// entra removes members via a `remove` on members with a value
 	if len(patch.Operations) == 1 && (patch.Operations[0].Op == "remove" || patch.Operations[0].Op == "Remove") && patch.Operations[0].Path == "members" {
 		value := patch.Operations[0].Value.([]any)
-		scimUserID := value[0].(map[string]any)["value"].(string)
+		for _, member := range value {
+			scimUserID := member.(map[string]any)["value"].(string)
 
-		if err := s.Store.AuthRemoveSCIMGroupMember(ctx, &store.AuthRemoveSCIMGroupMemberRequest{
-			SCIMGroup: &ssoreadyv1.SCIMGroup{
-				Id:              scimGroupID,
-				ScimDirectoryId: scimDirectoryID,
-			},
-			SCIMUserID: scimUserID,
-		}); err != nil {
-			panic(fmt.Errorf("store: %w", err))
+			if err := s.Store.AuthRemoveSCIMGroupMember(ctx, &store.AuthRemoveSCIMGroupMemberRequest{
+				SCIMGroup: &ssoreadyv1.SCIMGroup{
+					Id:              scimGroupID,
+					ScimDirectoryId: scimDirectoryID,
+				},
+				SCIMUserID: scimUserID,
+			}); err != nil {
+				panic(fmt.Errorf("store: %w", err))
+			}
 		}
 
 		w.WriteHeader(http.StatusNoContent)

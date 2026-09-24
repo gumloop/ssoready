@@ -6,6 +6,7 @@ import (
 	"log/slog"
 	"net/http"
 	"os"
+	"time"
 
 	"connectrpc.com/connect"
 	"connectrpc.com/vanguard"
@@ -33,6 +34,7 @@ import (
 	"github.com/ssoready/ssoready/internal/sentryinterceptor"
 	"github.com/ssoready/ssoready/internal/slogcorrelation"
 	"github.com/ssoready/ssoready/internal/store"
+	"github.com/ssoready/ssoready/internal/timeoutinterceptor"
 )
 
 func main() {
@@ -163,6 +165,7 @@ func main() {
 			UnimplementedSSOReadyServiceHandler:   ssoreadyv1connect.UnimplementedSSOReadyServiceHandler{},
 		},
 		connect.WithInterceptors(
+			timeoutinterceptor.New(30*time.Second),
 			sentryinterceptor.NewPreAuthentication(),
 			authninterceptor.New(store_),
 			sentryinterceptor.NewPostAuthentication(),

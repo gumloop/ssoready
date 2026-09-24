@@ -7,10 +7,7 @@ import (
 	"connectrpc.com/connect"
 )
 
-// New returns an interceptor that bounds every RPC with a context deadline.
-// pgx aborts in-flight queries and discards their connections on context
-// cancellation, so a dead database connection cannot hold a request open
-// past the deadline.
+// New returns an interceptor that bounds each RPC's context with the given timeout.
 func New(timeout time.Duration) connect.UnaryInterceptorFunc {
 	return func(f connect.UnaryFunc) connect.UnaryFunc {
 		return func(ctx context.Context, req connect.AnyRequest) (connect.AnyResponse, error) {

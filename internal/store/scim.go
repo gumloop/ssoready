@@ -38,7 +38,7 @@ func (s *Store) ListSCIMUsers(ctx context.Context, req *ssoreadyv1.ListSCIMUsers
 		}
 
 		// check that scim dir belongs to env by making sure this query finds something
-		if _, err := s.q.GetSCIMDirectoryByIDAndEnvironmentID(ctx, queries.GetSCIMDirectoryByIDAndEnvironmentIDParams{
+		if _, err := q.GetSCIMDirectoryByIDAndEnvironmentID(ctx, queries.GetSCIMDirectoryByIDAndEnvironmentIDParams{
 			EnvironmentID: envID,
 			ID:            scimDirID,
 		}); err != nil {
@@ -86,7 +86,7 @@ func (s *Store) ListSCIMUsers(ctx context.Context, req *ssoreadyv1.ListSCIMUsers
 			return nil, fmt.Errorf("parse scim group id: %w", err)
 		}
 
-		qSCIMUsers, err = s.q.ListSCIMUsersInSCIMGroup(ctx, queries.ListSCIMUsersInSCIMGroupParams{
+		qSCIMUsers, err = q.ListSCIMUsersInSCIMGroup(ctx, queries.ListSCIMUsersInSCIMGroupParams{
 			ScimDirectoryID: scimDirID,
 			ID:              startID,
 			Limit:           int32(limit + 1),
@@ -97,7 +97,7 @@ func (s *Store) ListSCIMUsers(ctx context.Context, req *ssoreadyv1.ListSCIMUsers
 		}
 	} else {
 		// plain list by scim dir id
-		qSCIMUsers, err = s.q.ListSCIMUsers(ctx, queries.ListSCIMUsersParams{
+		qSCIMUsers, err = q.ListSCIMUsers(ctx, queries.ListSCIMUsersParams{
 			ScimDirectoryID: scimDirID,
 			ID:              startID,
 			Limit:           int32(limit + 1),
@@ -186,7 +186,7 @@ func (s *Store) ListSCIMGroups(ctx context.Context, req *ssoreadyv1.ListSCIMGrou
 		}
 
 		// check that scim dir belongs to env by making sure this query finds something
-		if _, err := s.q.GetSCIMDirectoryByIDAndEnvironmentID(ctx, queries.GetSCIMDirectoryByIDAndEnvironmentIDParams{
+		if _, err := q.GetSCIMDirectoryByIDAndEnvironmentID(ctx, queries.GetSCIMDirectoryByIDAndEnvironmentIDParams{
 			EnvironmentID: envID,
 			ID:            scimDirID,
 		}); err != nil {
@@ -226,7 +226,7 @@ func (s *Store) ListSCIMGroups(ctx context.Context, req *ssoreadyv1.ListSCIMGrou
 	}
 
 	limit := 10
-	qSCIMGroups, err := s.q.ListSCIMGroups(ctx, queries.ListSCIMGroupsParams{
+	qSCIMGroups, err := q.ListSCIMGroups(ctx, queries.ListSCIMGroupsParams{
 		ScimDirectoryID: scimDirID,
 		ID:              startID,
 		Limit:           int32(limit + 1),

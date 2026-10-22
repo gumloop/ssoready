@@ -1,4 +1,4 @@
-FROM node:22.23.3-bookworm@sha256:0e5f906573693feaa1e21057ebdcfdb5bd5021f050b2dc7c9deceb629c7da2a8 AS build
+FROM node:22.23.4-trixie@sha256:77d0c7953e80648137a237496c8edbcb3a14bedc5c5298b93a6d0dfa6c3e1271 AS build
 
 WORKDIR /work
 
@@ -17,7 +17,7 @@ WORKDIR /server
 COPY server/package.json server/package-lock.json ./
 RUN npm ci
 
-FROM node:22.23.3-bookworm-slim@sha256:c3de60bf2f9dd0ac6370e6117950ff62d6e339527e7472301c9c78a017978392
+FROM node:22.23.4-trixie-slim@sha256:8eb619e402eaede1748a3c8173bffab391592812e85136452f781741c7242ddf
 
 RUN apt-get update \
     && apt-get upgrade -y \
